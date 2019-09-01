@@ -4,3 +4,4 @@ from litex_boards.community.platforms import de1soc
 from litex_boards.community.platforms import de2_115
 from litex_boards.community.platforms import ecp5_evn
 from litex_boards.community.platforms import sp605
+from litex_boards.community.platforms import panologicg2
