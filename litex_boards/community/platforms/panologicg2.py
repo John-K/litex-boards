@@ -40,7 +40,7 @@ _io = [
     ("ddram_clock", 0,
         Subsignal("p", Pins("H20")),
         Subsignal("n", Pins("J19")),
-        IOStandard("SSTL18_I")
+        IOStandard("DIFF_SSTL18_I")
     ),
 
     # Micron MT47H32M16HR-25E:G (D9LPX)
