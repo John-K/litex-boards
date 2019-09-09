@@ -19,9 +19,22 @@ _io = [
     # This net is driven by the GMII chip.
     ("clk125", 0, Pins("Y13"), IOStandard("LVCMOS33")),
 
+    # Re-use DVI DDC pins for UART
     ("serial", 0,
         Subsignal("tx", Pins("C14"), IOStandard("LVCMOS33")),  # DVI DDC SCL
         Subsignal("rx", Pins("C17"), IOStandard("LVCMOS33"))   # DVI DDC SDA
+    ),
+
+    # Micron M25P128 SPI Serial Flash
+    # 128Mbit / 32MiB @ 54MHz
+    # Datasheet https://www.micron.com/~/media/documents/products/data-sheet/nor-flash/serial-nor/m25p/m25p_128.pdf
+    # TODO: verify this!
+    ("spi_flash", 0,
+        Subsignal("cs_n", Pins("T5")),
+        Subsignal("clk", Pins("Y21")),
+        Subsignal("mosi", Pins("AB20")),
+        Subsignal("miso", Pins("AA20")),
+        IOStandard("LVCMOS33"),
     ),
 
     ("ddram_clock", 0,
@@ -30,6 +43,12 @@ _io = [
         IOStandard("SSTL18_I")
     ),
 
+    # Micron MT47H32M16HR-25E:G (D9LPX)
+    # Datasheet https://www.micron.com/~/media/Documents/Products/Data%20Sheet/DRAM/DDR2/512MbDDR2.pdf
+    # DDR2-800, CL 5
+    # Density 512Mb
+    # Width x16
+    # Depth 32Mb
     ("ddram", 0,
         Subsignal("a", Pins(
             "F21 F22 E22 G20 F20 K20 K19 E20",
@@ -75,7 +94,82 @@ _io = [
         Subsignal("odt", Pins("J6"), IOStandard("SSTL18")),
 #        Subsignal("reset_n", Pins("K6"), IOStandard("SSTL18")),
         Misc("SLEW=FAST")
-     )
+    ),
+
+    # 10/100/1000 Ethernet PHY
+    # Marvell 88E1119R-NNW2
+    # GMII / MII
+    # Uses e1000phy driver
+
+    # unsure what ref_clk should be here
+    #("eth_ref_clk", 0, Pins("AA12"), IOStandard("LVCMOS33")),
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("Y11")),
+        Subsignal("gtx", Pins("AA12")),
+        Subsignal("rx", Pins("AB11")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("R11")),
+        Subsignal("mdio", Pins("AA2")),
+        Subsignal("mdc", Pins("AB6")),
+        Subsignal("rx_dv", Pins("Y7")),
+        Subsignal("rx_er", Pins("Y8")),
+        Subsignal("rx_data", Pins("Y3 Y4 R9 R7 V9 R8 U9 Y9")),
+        Subsignal("tx_en", Pins("AA8")),
+        #Subsignal("tx_er", Pins("AB8")), # Per Pano.ucf, this is NC
+        Subsignal("tx_data", Pins("AB2 AB3 AB4 AB7 AB9 AB10 T7 Y10")),
+        Subsignal("col", Pins("V7")),
+        Subsignal("crs", Pins("W4")),
+        Subsignal("link_up_n", Pins("AA4")), # likely unused anywhere, not sure what it does
+        IOStandard("LVCMOS33"),
+    ),
+
+    # Video Out
+    # Two Chrontel CH7301C ICs
+    # Datasheet:
+    #    http://www.chrontel.com.cn/upFiles/images/US/By%20Product/CH7301C/Datasheets/CH7301C%20Datasheet%20rev2.1.pdf
+    # Register App Note: AN41
+    #    http://www.chrontel.com/upFiles/images/US/By%20Product/CH7301C/Application%20Notes/an41.pdf
+
+    # micro HDMI OUT
+    # I2C Address 0xEA (AS Pin = 1)
+    ("dvi-shared", 0,
+        Subsignal("scl", Pins("E8")),
+        Subsignal("sda", Pins("D9")),
+        IOStandard("LVCMOS33"),
+    ),
+    ("hdmi", 0,
+        Subsignal("rst_n", Pins("W18")),
+        Subsignal("clk_p", Pins("T17")),
+        Subsignal("data", Pins("T18 U16 V17 V19 V18 W17 Y17 Y15 Y18 Y19 AB21 T17")),
+        Subsignal("vsync", Pins("T16")),
+        Subsignal("hsync", Pins("AB15")),
+        Subsignal("data_en", Pins("AB16")),
+        Subsignal("ddc_scl", Pins("AA21")),
+        Subsignal("ddc_sda", Pins("AB19")),
+        Subsignal("hotplug_n", Pins("AB18")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=FAST DRIVE=24")
+    ),
+
+    # DVI OUT
+    # I2C Address 0xEC (AS Pin = 0)
+    ("dvi", 0,
+        Subsignal("rst_n", Pins("C15")),
+        Subsignal("clk_p", Pins("E14")),
+        Subsignal("clk_n", Pins("F15")),
+        Subsignal("data", Pins("D17 A14 A15 A16 A17 A18 D14 B14 B16 B18 E16 D15")),
+        Subsignal("vsync", Pins("C16")),
+        Subsignal("hsync", Pins("F12")),
+        Subsignal("data_en", Pins("F14")),
+        #Subsignal("ddc_scl", Pins("C14")), # commented out for use as UART
+        #Subsignal("ddc_sda", Pins("C17")), # commented out for use as UART
+        Subsignal("hotplug_n", Pins("D13")),
+        IOStandard("LVCMOS33"),
+        Misc("SLEW=FAST DRIVE=24")
+    ),
+
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
