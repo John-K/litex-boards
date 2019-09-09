@@ -15,7 +15,9 @@ _io = [
 
     ("user_sw", 0, Pins("H12"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
-    ("clk25", 0, Pins("Y13"), IOStandard("LVCMOS33")),
+    # 125 MHz System Clock (25 MHz when GMII chip is in reset)
+    # This net is driven by the GMII chip.
+    ("clk125", 0, Pins("Y13"), IOStandard("LVCMOS33")),
 
     ("serial", 0,
         Subsignal("tx", Pins("C14"), IOStandard("LVCMOS33")),  # DVI DDC SCL
@@ -84,8 +86,8 @@ _connectors = [
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk25"
-    default_clk_period = 1e9/25e6
+    default_clk_name = "clk125"
+    default_clk_period = 1e9/125e6
 
     def __init__(self, device="xc6slx100"):
         XilinxPlatform.__init__(self, device+"-2-fgg484", _io, _connectors, toolchain="ise")

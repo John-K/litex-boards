@@ -39,7 +39,7 @@ class _CRG(Module):
         self.cd_sys_ps.clk.attr.add("keep")
 
         self.submodules.pll = pll = S6PLL(speedgrade=-2)
-        pll.register_clkin(platform.request("clk25"), 25e6)
+        pll.register_clkin(platform.request("clk125"), 125e6)
         pll.create_clkout(self.cd_sys, clk_freq)
         pll.create_clkout(self.cd_sys_ps, clk_freq, phase=270)
 
@@ -66,10 +66,11 @@ class BaseSoC(SoCSDRAM):
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
 
-    def __init__(self, sys_clk_freq=int(25e6), **kwargs):
-        assert sys_clk_freq == int(25e6)
+    def __init__(self, sys_clk_freq=int(100e6), **kwargs):
+        assert sys_clk_freq == int(100e6)
         platform = panologicg2.Platform()
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
+                          ident="VexRiscv on Panologic G2", ident_version=True,
                           integrated_rom_size=0x8000,
                           integrated_main_ram_size=0x8000,
                           uart_baudrate=115200,
@@ -85,6 +86,10 @@ class BaseSoC(SoCSDRAM):
                 platform.request("user_led", 1).eq(leds[1]),
                 platform.request("user_led", 2).eq(leds[2])
         ]
+
+        # enable 125MHz clock
+        self.comb += [ platform.request("eth").rst_n.eq(1) ]
+
         # sdram
 #        sdram_module = MT47H32M16(sys_clk_freq, "1:2")
 #        self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
